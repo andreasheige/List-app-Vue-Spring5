@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Messages App</title>
+    <link href="https://fonts.googleapis.com/css?family=Inter&display=swap" rel="stylesheet">
+    <style>
+        [v-cloak] {display: none;}
+        input:focus, textarea:focus, select:focus{
+            outline: none;
+        }
+        body{
+            background-image: linear-gradient(to right, #2b82c7, #2b8d9c, #2b82c7);
+            font-family: 'Inter', "Helvetica Neue", sans-serif;
+            color: #000000;
+
+        }
+        h1{
+            color: #ffb94b;
+            font-size: 1.9rem;
+            font-weight: bold;
+        }
+
+
+        .list{
+            background-color: transparent;
+        }
+
+        body > div {
+            width: 500px;
+            margin: 0 auto;
+        }
+        textarea {
+            background-color: transparent;
+            border-left: 0;
+            border-right: 0;
+            border-top: 0;
+            border-bottom: dashed #33546c 2px;
+            width: 100%;
+            height: 2.5rem;
+            text-align: center;
+            font-style: italic;
+            font-size: 1.5rem;
+            opacity: .6
+
+        }
+
+
+        ul {
+            width: 100%;
+            color: #ffb94b;
+            background-color: transparent;
+            list-style-type: none;
+            padding: 0 15px;
+            display: grid;
+            grid-template-columns: 1fr;
+            grid-auto-flow: row;
+        }
+
+        li{
+            align-items: end;
+        }
+
+        .list-line{
+            grid-column: 1/2;
+            background-color: transparent;
+        }
+
+
+        .delete-button{
+
+
+            width: 30px;
+            font-weight: bold;
+            grid-column: 2/3;
+            border-radius: 12px;
+            background-color: #33546c;
+            color: #ffb94b;
+            float: right;
+
+        }
+
+        #submit{
+            padding-top: 5px;
+            width: 504px;
+            height: 50px;
+            font-size: 1rem;
+            border-radius: 5px;
+            color: #ffb94b;
+            background-color: #33546c;
+            border: #33546c;
+            opacity: .4;
+        }
+
+
+    </style>
+</head>
+<body>
+<div id="app" v-cloak>
+    <h1>List-application in Vue and Spring </h1>
+    <message-list :items="messages" @delete="deleteMessage" class="list"></message-list>
+    <form @submit.prevent="addMessage">
+        <textarea id="newMessage" v-model="newMessage" placeholder="Leave a message" v-focus></textarea>
+        <div id="button-div"><button :disabled="addDisabled" type="submit" id="submit">Add New Message</button></div>
+    </form>
+</div>
+<script src="../vue.js"></script>
+<script src="../axios.v0.18.0.min.js"></script>
+<script type="module">
+    import MessageList from './components/MessageList.js'
+    import LifecycleLogger from './plugins/lifecycle-logger.plugin.js'
+    import './directives/focus.directive.js'
+    import './filters/datetime.filter.js'
+
+    Vue.use(LifecycleLogger, {beforeMount: false})
+
+    window.vm = new Vue({
+        el: '#app',
+        name: 'MessagesApp',
+        data: {
+            messages: [],
+            newMessage: ''
+        },
+        computed: {
+            addDisabled () {
+                return this.newMessage.length > 50
+            }
+        },
+        components: {
+            MessageList
+        },
+        created () {
+            axios.get('api/messages?_=' + new Date().getTime())
+                .then((response) => {
+                    this.messages = response.data
+                })
+                .catch((error) => {
+                    console.log('Failed to get messages' + error);
+                });
+        },
+        methods: {
+            addMessage (event) {
+                if (!this.newMessage) return
+
+                axios.post('api/messages', {text: this.newMessage})
+                    .then((response) => {
+                        this.messages.push(response.data)
+                        this.newMessage = ''
+                    })
+                    .catch((error) => {
+                        console.log(error);
+                    });
+            },
+            deleteMessage (message) {
+                this.messages.splice(this.messages.indexOf(message), 1)
+            }
+        }
+    })
+</script>
+</body>
+</html>
