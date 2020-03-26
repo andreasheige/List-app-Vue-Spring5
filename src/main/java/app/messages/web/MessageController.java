@@ -16,11 +16,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
 @Controller
 public class MessageController {
 
+    @Autowired
     private MessageService messageService;
-
-    public MessageController(MessageService messageService) {
-        this.messageService = messageService;
-    }
 
     @GetMapping("/messages")
     public String index() {

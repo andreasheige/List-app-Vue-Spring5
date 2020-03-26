@@ -6,17 +6,12 @@ import app.messages.security.SecurityCheck;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-@Component
 public class MessageService {
 
+    @Autowired
     private MessageRepository repository;
-
-    public MessageService(MessageRepository repository) {
-        this.repository = repository;
-    }
 
     @Transactional(readOnly = true)
     public List<Message> getMessages() {
